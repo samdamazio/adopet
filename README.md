@@ -69,4 +69,4 @@ Este projeto está sob a licença ISC.
 
 ## 👨‍💻 Autor
 
-Desenvolvido por [Seu Nome]
+Desenvolvido por Alura e SamDamazio
