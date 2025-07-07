@@ -3,7 +3,10 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "noImplicitAny": true,
+    "outDir": "./build",
     "noEmitOnError": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
   "include": ["./src/**/*", "./server.ts"]
 }
