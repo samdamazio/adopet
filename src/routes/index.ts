@@ -1,16 +1,8 @@
 import express from "express";
-import petRouter from "./petRouter";
-
-const app = express();
-
-const router = (app: express.Application) => {
+import petRouter from "../routes/petRouter";
+import adotanteRouter from "../routes/adotanteRouter";
+const router = (app: express.Router) => {
   app.use("/pets", petRouter);
+  app.use("/adotantes", adotanteRouter);
 };
-
-router(app);
-
-app.listen(3000, () => {
-  console.log("Servidor em execução na porta 3000");
-});
-
 export default router;

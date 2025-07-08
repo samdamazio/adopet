@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
-import type TipoPet from "../tipos/tipoPet";
+import type TipoPet from "../tipos/TipoPet";
 import EnumEspecie from "../enum/EnumEspecie";
 import PetRepository from "../repositories/interfaces/InterfacePetRepository";
 import PetEntity from "../entities/PetEntity";
@@ -15,39 +15,38 @@ function geraId() {
 
 class PetController {
   constructor(private repository: PetRepository) {}
-  criaPet(req: Request, res: Response) {
+  async criaPet(req: Request, res: Response) {
     const { adotado, especie, nome, dataDeNascimento } = <PetEntity>req.body;
     if (!Object.values(EnumEspecie).includes(especie)) {
       return res.status(400).json({ message: "Espécie inválida" });
     }
-    const novoPet: PetEntity = new PetEntity();
-    novoPet.id = geraId();
-    novoPet.nome = nome;
-    novoPet.especie = especie;
-    novoPet.adotado = adotado;
-    novoPet.dataDeNascimento = dataDeNascimento;
-    this.repository.criaPet(novoPet);
+    const novoPet: PetEntity = new PetEntity(
+      nome,
+      especie,
+      dataDeNascimento,
+      adotado
+    );
+
+    await this.repository.criaPet(novoPet);
     return res.status(201).json(novoPet);
   }
 
   async listaPets(req: Request, res: Response) {
-    const listaDePets = await this.repository.listaPets();
+    const listaDePets = await this.repository.listaPet();
     return res.status(200).json(listaDePets);
   }
 
-  atualizaPet(req: Request, res: Response) {
+  async atualizaPet(req: Request, res: Response): Promise<Response> {
     const { id } = req.params;
-    const { nome, especie, adotado, dataDeNascimento } = <TipoPet>req.body;
-    const pet = listaDePets.find((pet) => pet.id === Number(id));
-    if (!pet) {
-      return res.status(404).json({ message: "Pet não encontrado" });
+    const { success, message } = await this.repository.atualizaPet(
+      Number(id),
+      req.body as PetEntity
+    );
+    if (!success) {
+      return res.status(404).json({ message });
     }
 
-    pet.nome = nome || pet.nome;
-    pet.especie = especie || pet.especie;
-    pet.adotado = adotado !== undefined ? adotado : pet.adotado;
-    pet.dataDeNascimento = dataDeNascimento || pet.dataDeNascimento;
-    return res.status(200).json(pet);
+    return res.sendStatus(204);
   }
 
   deletaPet(req: Request, res: Response) {
