@@ -8,23 +8,22 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { criaSenhaCriptografada } from "../utils/senhaCriptografada";
 import EnderecoEntity from "./Endereco";
 import PetEntity from "./PetEntity";
-import { criaSenhaCriptografada } from "../utils/senhaCriptografada";
 
 @Entity()
-export default class AdotanteEntity {
+export default class AbrigoEntity {
   @PrimaryGeneratedColumn()
   id!: number;
   @Column()
   nome: string;
-  @Column()
-  senha: string;
+  @Column({ unique: true })
+  email: string;
   @Column({ unique: true })
   celular: string;
-  @Column({ nullable: true })
-  foto?: string;
-
+  @Column()
+  senha: string;
   @OneToOne(() => EnderecoEntity, {
     nullable: true,
     cascade: true,
@@ -32,26 +31,28 @@ export default class AdotanteEntity {
   })
   @JoinColumn()
   endereco?: EnderecoEntity;
-  @OneToMany(() => PetEntity, (pet) => pet.adotante)
+
+  @OneToMany(() => PetEntity, (pet) => pet.abrigo)
   pets!: PetEntity[];
 
   constructor(
     nome: string,
-    senha: string,
     celular: string,
-    foto?: string,
+    email: string,
+    senha: string,
     endereco?: EnderecoEntity
   ) {
     this.nome = nome;
-    this.senha = senha;
-    this.foto = foto;
     this.celular = celular;
+    this.email = email;
+    this.senha = senha;
     this.endereco = endereco;
   }
-
   @BeforeInsert()
   @BeforeUpdate()
-  private async criptografaSenha(senha: string) {
-    this.senha = criaSenhaCriptografada(this.senha);
+  private async criptografarSenha() {
+    if (this.senha) {
+      this.senha = criaSenhaCriptografada(this.senha);
+    }
   }
 }
